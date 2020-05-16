@@ -1,32 +1,31 @@
-class MovieInfo extends React.Component {
-  render() {
-    return (
-      <div>
-        <h1>Title: {this.props.movie.Title}</h1>
-        <h2>Year: {this.props.movie.Year}</h2>
-        <img src={this.props.movie.Poster} alt={this.props.movie.Title} />
-        <h3>Genre: {this.props.movie.Genre}</h3>
-        <h4>Plot: {this.props.movie.Plot}</h4>
-      </div>
-    );
-  }
-}
+const MovieInfo = ({ movie }) => {
+  const { Title, Year, Poster, Genre, Plot } = movie;
+  return (
+    <div>
+      <h1>Title: {Title}</h1>
+      <h2>Year: {Year}</h2>
+      <img src={Poster} alt={Title} />
+      <h3>Genre: {Genre}</h3>
+      <h4>Plot: {Plot}</h4>
+    </div>
+  );
+};
 
 class OMDBQueryForm extends React.Component {
   state = {
+    movieTitle: "",
     baseURL: "http://www.omdbapi.com/?",
     apikey: "apikey=" + "d009225a",
     query: "&t=",
-    movieTitle: "",
     searchURL: "",
-    movie: "",
   };
 
-  handleChange = (event) => {
-    this.setState({ [event.target.id]: event.target.value });
+  handleChange = (e) => {
+    this.setState({ [e.target.id]: e.target.value });
   };
-  handleSubmit = (event) => {
-    event.preventDefault();
+
+  handleSubmit = (e) => {
+    e.preventDefault();
     this.setState(
       {
         searchURL:
@@ -36,16 +35,18 @@ class OMDBQueryForm extends React.Component {
           this.state.movieTitle,
       },
       () => {
+        console.log(this.state.searchURL);
         fetch(this.state.searchURL)
-          .then((response) => {
-            return response.json();
+          .then((res) => {
+            return res.json();
           })
           .then(
-            (json) =>
+            (data) => {
               this.setState({
-                movie: json,
+                movie: data,
                 movieTitle: "",
-              }),
+              });
+            },
             (err) => console.log(err)
           );
       }
@@ -53,7 +54,7 @@ class OMDBQueryForm extends React.Component {
   };
   render() {
     return (
-      <>
+      <div>
         <form onSubmit={this.handleSubmit}>
           <label htmlFor="movieTitle">Title</label>
           <input
@@ -64,11 +65,12 @@ class OMDBQueryForm extends React.Component {
           />
           <input type="submit" value="Find Movie Info" />
         </form>
-        {this.state.movie ? <MovieInfo movie={this.state.movie} /> : ""}
-      </>
+        {this.state.movie && <MovieInfo movie={this.state.movie} />}
+      </div>
     );
   }
 }
+
 class App extends React.Component {
   render() {
     return <OMDBQueryForm />;
